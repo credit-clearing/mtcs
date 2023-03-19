@@ -1,5 +1,9 @@
 use hdk::prelude::*;
 use form_integrity::*;
+
+use crate::notify;
+
+
 #[hdk_extern]
 pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
     let obligation_hash = create_entry(&EntryTypes::Obligation(obligation.clone()))?;
@@ -28,6 +32,9 @@ pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
         LinkTypes::AllObligations,
         (),
     )?;
+
+    notify(obligation.debtor, record.action_address().to_owned());
+
     Ok(record)
 }
 #[hdk_extern]
