@@ -12,12 +12,12 @@
   import {
     ProfilesStore,
     ProfilesClient,
-    CreateProfile,
     ProfilePrompt,
-    profilesStoreContext,
     MyProfile,
-    ProfilesContext
-  } from '@holochain-open-dev/profiles';
+    ProfilesContext,
+    ListProfiles,
+    SearchAgent,
+  } from "@holochain-open-dev/profiles";
 
   let client: AppAgentClient | undefined;
   let loading = true;
@@ -25,33 +25,32 @@
 
   $: client, loading, store;
 
-  if (!customElements.get('profiles-context')){
-    customElements.define('profiles-context', ProfilesContext)
+  if (!customElements.get("profiles-context")) {
+    customElements.define("profiles-context", ProfilesContext);
   }
 
-  if (!customElements.get('my-profile')){
-    customElements.define('my-profile', MyProfile)
+  if (!customElements.get("my-profile")) {
+    customElements.define("my-profile", MyProfile);
   }
 
-  if (!customElements.get('profile-prompt')){
-    customElements.define('profile-prompt', ProfilePrompt)
+  if (!customElements.get("list-profiles")) {
+    customElements.define("list-profiles", ListProfiles);
+  }
+
+  if (!customElements.get("profile-prompt")) {
+    customElements.define("profile-prompt", ProfilePrompt);
   }
 
   onMount(async () => {
     // We pass '' as url because it will dynamically be replaced in launcher environments
     client = await AppAgentWebsocket.connect("", "mtcs");
-    store = new ProfilesStore(new ProfilesClient(client, 'form_test'));
+    store = new ProfilesStore(new ProfilesClient(client, "form_test"));
     loading = false;
   });
 
   setContext(clientContext, {
     getClient: () => client,
   });
-
-  let count = 0;
-  function addOne() {
-    count += 1;
-  }
 </script>
 
 <main>
@@ -62,14 +61,19 @@
       <mwc-circular-progress indeterminate />
     </div>
   {:else}
-    <profiles-context store={store}>
+    <profiles-context {store}>
       <profile-prompt>
         <my-profile />
-        <div id="content" style="display: flex; flex-direction: column; flex: 1;">
-          <button on:click={addOne}>Clicked {count} times</button>
+        <div
+          id="content"
+          style="display: flex; flex-direction: column; flex: 1;"
+        >
           <AllObligations />
 
-          <CreateObligation debtor={client.myPubKey} creator={client.myPubKey} />
+          <CreateObligation
+            debtor={client.myPubKey}
+            creator={client.myPubKey}
+          />
         </div>
       </profile-prompt>
     </profiles-context>
