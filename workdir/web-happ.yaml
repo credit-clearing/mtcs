@@ -1,0 +1,7 @@
+---
+manifest_version: "1"
+name: mtcs
+ui:
+  bundled: "../ui/dist.zip"
+happ_manifest:
+  bundled: "./mtcs.happ"

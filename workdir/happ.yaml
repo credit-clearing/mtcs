@@ -1,0 +1,18 @@
+---
+manifest_version: "1"
+name: mtcs
+description: ~
+roles:
+  - name: form_test
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/form_test/workdir/form_test.dna"
+      modifiers:
+        network_seed: ~
+        properties: ~
+        origin_time: ~
+        quantum_time: ~
+      version: ~
+      clone_limit: 0

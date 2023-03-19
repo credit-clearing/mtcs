@@ -1,0 +1,15 @@
+[package]
+name = "form"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "form"
+
+[dependencies]
+hdk = { workspace = true }
+
+serde = { workspace = true }
+
+form_integrity = { workspace = true } 
