@@ -1,3 +1,5 @@
+pub mod pseudo_obligation;
+pub use pseudo_obligation::*;
 pub mod obligation;
 pub use obligation::*;
 use hdi::prelude::*;
@@ -7,6 +9,7 @@ use hdi::prelude::*;
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
     Obligation(Obligation),
+    PseudoObligation(PseudoObligation),
 }
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
@@ -15,6 +18,7 @@ pub enum LinkTypes {
     CreatorToObligations,
     ObligationUpdates,
     AllObligations,
+    AllPseudoObligations,
 }
 #[hdk_extern]
 pub fn genesis_self_check(
@@ -41,6 +45,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 obligation,
                             )
                         }
+                        EntryTypes::PseudoObligation(pseudo_obligation) => {
+                            validate_create_pseudo_obligation(
+                                EntryCreationAction::Create(action),
+                                pseudo_obligation,
+                            )
+                        }
                     }
                 }
                 OpEntry::UpdateEntry { app_entry, action, .. } => {
@@ -49,6 +59,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             validate_create_obligation(
                                 EntryCreationAction::Update(action),
                                 obligation,
+                            )
+                        }
+                        EntryTypes::PseudoObligation(pseudo_obligation) => {
+                            validate_create_pseudo_obligation(
+                                EntryCreationAction::Update(action),
+                                pseudo_obligation,
                             )
                         }
                     }
@@ -65,6 +81,17 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     action,
                 } => {
                     match (app_entry, original_app_entry) {
+                        (
+                            EntryTypes::PseudoObligation(pseudo_obligation),
+                            EntryTypes::PseudoObligation(original_pseudo_obligation),
+                        ) => {
+                            validate_update_pseudo_obligation(
+                                action,
+                                pseudo_obligation,
+                                original_action,
+                                original_pseudo_obligation,
+                            )
+                        }
                         (
                             EntryTypes::Obligation(obligation),
                             EntryTypes::Obligation(original_obligation),
@@ -98,6 +125,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 action,
                                 original_action,
                                 obligation,
+                            )
+                        }
+                        EntryTypes::PseudoObligation(pseudo_obligation) => {
+                            validate_delete_pseudo_obligation(
+                                action,
+                                original_action,
+                                pseudo_obligation,
                             )
                         }
                     }
@@ -139,6 +173,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 }
                 LinkTypes::AllObligations => {
                     validate_create_link_all_obligations(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
+                LinkTypes::AllPseudoObligations => {
+                    validate_create_link_all_pseudo_obligations(
                         action,
                         base_address,
                         target_address,
@@ -192,6 +234,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         tag,
                     )
                 }
+                LinkTypes::AllPseudoObligations => {
+                    validate_delete_link_all_pseudo_obligations(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )
+                }
             }
         }
         OpType::StoreRecord(store_record) => {
@@ -202,6 +253,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             validate_create_obligation(
                                 EntryCreationAction::Create(action),
                                 obligation,
+                            )
+                        }
+                        EntryTypes::PseudoObligation(pseudo_obligation) => {
+                            validate_create_pseudo_obligation(
+                                EntryCreationAction::Create(action),
+                                pseudo_obligation,
                             )
                         }
                     }
@@ -253,6 +310,37 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                     obligation,
                                     original_action,
                                     original_obligation,
+                                )
+                            } else {
+                                Ok(result)
+                            }
+                        }
+                        EntryTypes::PseudoObligation(pseudo_obligation) => {
+                            let result = validate_create_pseudo_obligation(
+                                EntryCreationAction::Update(action.clone()),
+                                pseudo_obligation.clone(),
+                            )?;
+                            if let ValidateCallbackResult::Valid = result {
+                                let original_pseudo_obligation: Option<PseudoObligation> = original_record
+                                    .entry()
+                                    .to_app_option()
+                                    .map_err(|e| wasm_error!(e))?;
+                                let original_pseudo_obligation = match original_pseudo_obligation {
+                                    Some(pseudo_obligation) => pseudo_obligation,
+                                    None => {
+                                        return Ok(
+                                            ValidateCallbackResult::Invalid(
+                                                "The updated entry type must be the same as the original entry type"
+                                                    .to_string(),
+                                            ),
+                                        );
+                                    }
+                                };
+                                validate_update_pseudo_obligation(
+                                    action,
+                                    pseudo_obligation,
+                                    original_action,
+                                    original_pseudo_obligation,
                                 )
                             } else {
                                 Ok(result)
@@ -319,6 +407,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_obligation,
                             )
                         }
+                        EntryTypes::PseudoObligation(original_pseudo_obligation) => {
+                            validate_delete_pseudo_obligation(
+                                action,
+                                original_action,
+                                original_pseudo_obligation,
+                            )
+                        }
                     }
                 }
                 OpRecord::CreateLink {
@@ -355,6 +450,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AllObligations => {
                             validate_create_link_all_obligations(
+                                action,
+                                base_address,
+                                target_address,
+                                tag,
+                            )
+                        }
+                        LinkTypes::AllPseudoObligations => {
+                            validate_create_link_all_pseudo_obligations(
                                 action,
                                 base_address,
                                 target_address,
@@ -415,6 +518,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         }
                         LinkTypes::AllObligations => {
                             validate_delete_link_all_obligations(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        LinkTypes::AllPseudoObligations => {
+                            validate_delete_link_all_pseudo_obligations(
                                 action,
                                 create_link.clone(),
                                 base_address,

@@ -8,6 +8,7 @@
 
   import AllObligations from "./form_test/form/AllObligations.svelte";
   import CreateObligation from "./form_test/form/CreateObligation.svelte";
+  import AllPseudoObligation from "./form_test/form/AllPseudoObligations.svelte";
 
   import {
     ProfilesStore,
@@ -18,6 +19,7 @@
     MyProfile,
     ProfilesContext
   } from '@holochain-open-dev/profiles';
+    import AllPseudoObligations from "./form_test/form/AllPseudoObligations.svelte";
 
   let client: AppAgentClient | undefined;
   let loading = true;
@@ -66,6 +68,7 @@
       <profile-prompt>
         <my-profile />
         <div id="content" style="display: flex; flex-direction: column; flex: 1;">
+          <AllPseudoObligations />
           <button on:click={addOne}>Clicked {count} times</button>
           <AllObligations />
 

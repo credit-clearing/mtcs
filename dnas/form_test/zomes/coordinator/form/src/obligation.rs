@@ -1,9 +1,6 @@
 use hdk::prelude::*;
 use form_integrity::*;
-
 use crate::notify;
-
-
 #[hdk_extern]
 pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
     let obligation_hash = create_entry(&EntryTypes::Obligation(obligation.clone()))?;
@@ -32,9 +29,7 @@ pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
         LinkTypes::AllObligations,
         (),
     )?;
-
     notify(obligation.debtor, record.action_address().to_owned());
-
     Ok(record)
 }
 #[hdk_extern]
@@ -121,14 +116,61 @@ pub fn get_obligations_for_creator(creator: AgentPubKey) -> ExternResult<Vec<Rec
         .collect();
     Ok(records)
 }
-#[hdk_extern]
-pub fn find_next_obligation() -> ExternResult<String> {
-    let my_pub_key = agent_info()?.agent_initial_pubkey;
-    let links = get_links(my_pub_key, LinkTypes::PseudoObligations, None)?;
-    // for each link
-    // retrieve all direct pseudo oligations
-    // for each new pseudo obligation
-    // create a new pseudooligationrecord with a link to my agent
 
-    Ok("Found {} new pseudo obligations", 2)
-}
+// #[hdk_extern]
+// pub fn find_next_obligation() -> ExternResult<String> {
+//     let my_pub_key = agent_info()?.agent_initial_pubkey;
+//     let links = get_links(my_pub_key.clone(), LinkTypes::PseudoObligations, None)?;
+//     let get_input: Vec<GetInput> = links
+//     .into_iter()
+//     .map(|link| GetInput::new(
+//         ActionHash::from(link.target).into(),
+//         GetOptions::default(),
+//     ))
+//     .collect();
+//     let records: Vec<Record> = HDK
+//         .with(|hdk| hdk.borrow().get(get_input))?
+//         .into_iter()
+//         .filter_map(|r| r)
+//         .collect();
+//     // for each link
+//     // retrieve all direct pseudo oligations
+//     for r in records {
+//         // define agentPubKey of creditor
+//         let creditor_key: AgentPubKey = AgentPubKey::from(
+//             r.action_address().clone()
+//         )
+//         // get all obligations for creditor
+//         let links2 = get_links(debtor, LinkTypes::DebtorToPseudoObligations, None)?;
+//         let get_input2: Vec<GetInput> = links
+//             .into_iter()
+//             .map(|link| GetInput::new(
+//                 ActionHash::from(link.target).into(),
+//                 GetOptions::default(),
+//             ))
+//             .collect();
+//         let records2: Vec<Record> = HDK
+//             .with(|hdk| hdk.borrow().get(get_input2))?
+//             .into_iter()
+//             .filter_map(|r| r)
+//             .collect();
+
+//         // for each obligation
+//         for r2 in records2 {
+//             // create a new pseudooligationrecord with a link to my agentPubKey
+//             let pseudoObligation = {
+
+//             }
+//             let obligation_hash = create_entry(&EntryTypes::PseudoObligation(pseudoObligation))?;
+//             create_link(
+//                 my_pub_key.clone(),
+//                 obligation_hash.clone(),
+//                 LinkTypes::DebtorToPseudoObligations,
+//                 (),
+//             )?;
+//         }
+//         .into();
+//     }
+
+//     Ok("Found {} new pseudo obligations", r2.len())
+// }

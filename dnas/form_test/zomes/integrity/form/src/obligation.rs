@@ -7,7 +7,7 @@ pub struct Obligation {
     pub attachment: String,
     pub datetime: Timestamp,
     pub creator: AgentPubKey,
-    pub approved: bool
+    pub approved: bool,
 }
 pub fn validate_create_obligation(
     _action: EntryCreationAction,
@@ -143,7 +143,6 @@ pub fn validate_create_link_all_obligations(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    // Check the entry type for the given action hash
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
     let _obligation: crate::Obligation = record
@@ -155,7 +154,6 @@ pub fn validate_create_link_all_obligations(
                 WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
             ),
         )?;
-    // TODO: add the appropriate validation rules
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_all_obligations(
@@ -171,4 +169,3 @@ pub fn validate_delete_link_all_obligations(
         ),
     )
 }
-

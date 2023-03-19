@@ -36,6 +36,7 @@ export type FormSignal = {
 };
 
 export type EntryTypes =
+ | ({ type: 'PseudoObligation'; } & PseudoObligation)
  | ({  type: 'Obligation'; } & Obligation);
 
 
@@ -50,5 +51,16 @@ export interface Obligation {
   datetime: number;
 
   creator: AgentPubKey;
+}
+
+
+
+
+export interface PseudoObligation { 
+  amount: number;
+
+  creditor: AgentPubKey;
+
+  trail: Array<ActionHash>;
 }
 
