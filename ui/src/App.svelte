@@ -117,7 +117,7 @@ const desirializeData = async (serializedData) => {
           id="content"
           style="display: flex; flex-direction: column; flex: 1;"
         >
-          <AllObligations />
+          
 
           <CreateObligation
             debtor={client.myPubKey}
@@ -126,6 +126,10 @@ const desirializeData = async (serializedData) => {
         </div>
       </profile-prompt>
     </profiles-context>
+    <div id="obligations"
+    style="display: flex; flex-direction: column; flex: 1; padding: 25px 25px; margin: auto">
+    <AllObligations />
+  </div>
   {/if}
 </main>
 

@@ -94,13 +94,16 @@
 </script>
 
 <mwc-snackbar bind:this={errorSnackbar} leading />
-<div style="display: flex; flex-direction: column">
-  <span style="margin-bottom: 32px; font-size: 18px">Create Obligation</span>
+<h1 style="margin-bottom: -10px">Credit Clearing (MTSC)</h1>
+<p style="font-size: 20px"> Decentralised credit clearing + mutual credit</p>
+<div style="display: flex; flex-direction: column; margin-top: 40px">
+  <!-- <span style="margin-bottom: 32px; font-size: 18px; font-weight: 400">Create Obligation</span> -->
+  <h2 style="padding-bottom: 15px">Create Obligation</h2>
 
   <div style="margin-bottom: 16px">
     <mwc-textfield
       outlined
-      label="Amount"
+      label="Amount:"
       value={amount}
       on:input={(e) => {
         amount = parseFloat(e.target.value);
@@ -118,10 +121,11 @@
             debtor = data.detail.agentPubKey;
           }}
         />
-
-        <span>
+          <div style="padding-top: 10px">
+        <span >
           Selected agent public key: {encodeHashToBase64(debtor)}
         </span>
+      </div>
         <br />
         <profile-detail />
       </div>
@@ -140,10 +144,13 @@
     />
   </div>
 
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <mwc-button
     raised
     label="Create Obligation"
     disabled={!isObligationValid}
     on:click={() => createObligation()}
   />
-</div>
+
+
+  </div>

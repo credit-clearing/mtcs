@@ -28,7 +28,7 @@ pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
         (),
     )?;
 
-    notify(obligation.debtor, record.action_address().to_owned());
+    notify(obligation.debtor, record.action_address().to_owned())?;
 
     Ok(record)
 }
