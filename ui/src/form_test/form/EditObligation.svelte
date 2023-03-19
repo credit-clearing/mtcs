@@ -56,6 +56,7 @@
       datetime: datetime!,
       debtor: currentObligation.debtor,
       creator: currentObligation.creator,
+      approved: true
     };
 
     try {

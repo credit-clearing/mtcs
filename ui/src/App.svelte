@@ -80,21 +80,27 @@ const desirializeData = async (serializedData) => {
   }
 
   onMount(async () => {
+    try {
+      
+   
     // We pass '' as url because it will dynamically be replaced in launcher environments
     client = await AppAgentWebsocket.connect("", "mtcs");
     store = new ProfilesStore(new ProfilesClient(client, "form_test"));
 
     client.on("signal", async (signal) => {
-      console.log('Signal Received: ', signal)
       if (signal.zome_name !== "form") return;
       const payload = signal.payload as FormSignal;
       if (payload.type !== "ObligationProposed") return;
+      console.log('Obligation Proposal Signal Received: ', signal)
 
       const actionHash = await desirializeData(payload.action);
       const obligationRecord: Obligation = await fetchObligation(actionHash);
 
       proposedObligations = [...proposedObligations, obligationRecord];
     });
+  } catch (error) {
+      console.error(error)
+    }
     loading = false;
   });
   setContext(clientContext, {
@@ -117,12 +123,19 @@ const desirializeData = async (serializedData) => {
           id="content"
           style="display: flex; flex-direction: column; flex: 1;"
         >
+
+
           <AllObligations />
 
           <CreateObligation
             debtor={client.myPubKey}
             creator={client.myPubKey}
           />
+          <!-- {#if proposedObligations}
+
+          <div>TEST: {proposedObligations[0].amount}</div>
+          {/if} -->
+
         </div>
       </profile-prompt>
     </profiles-context>

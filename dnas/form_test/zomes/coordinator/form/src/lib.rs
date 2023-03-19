@@ -156,8 +156,8 @@ pub fn notify(debtor: AgentPubKey, obligation_action_hash: ActionHash) -> Extern
 /// This function will also need to be added to your init as a
 /// unrestricted cap grant so it can be called remotely.
 
-#[hdk_extern]
 pub fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
+    debug!("{:?}", signal);
     emit_signal(Signal::ObligationProposed {
         serialised_data: signal,
     })?;
