@@ -1,9 +1,6 @@
 <script lang="ts">
   import { onMount, setContext } from "svelte";
-  import type {
-     ActionHash,
-     AppAgentClient,
-  } from "@holochain/client";
+  import type { ActionHash, AppAgentClient } from "@holochain/client";
   import { AppAgentWebsocket } from "@holochain/client";
   import "@material/mwc-circular-progress";
   import { decode } from "@msgpack/msgpack";
@@ -32,34 +29,34 @@
   let store = undefined;
   let proposedObligations: Array<Obligation> | undefined;
 
-$: client, loading, proposedObligations;
+  $: client, loading, proposedObligations;
 
-async function fetchObligation(obligationHash) {
-  // const obligation_hash = decode((record.entry as any).Present.entry) as ActionHash;
+  async function fetchObligation(obligationHash) {
+    // const obligation_hash = decode((record.entry as any).Present.entry) as ActionHash;
 
-  try {
-    const record = await client.callZome({
-      cap_secret: null,
-      role_name: "form_test",
-      zome_name: "form",
-      fn_name: "get_obligation",
-      payload: obligationHash,
-    });
-    // if (record) {
-    //   return record as HRecord
-    // }
+    try {
+      const record = await client.callZome({
+        cap_secret: null,
+        role_name: "form_test",
+        zome_name: "form",
+        fn_name: "get_obligation",
+        payload: obligationHash,
+      });
+      // if (record) {
+      //   return record as HRecord
+      // }
 
-    if (record) {
-      return decode((record.entry as any).Present.entry) as Obligation;
+      if (record) {
+        return decode((record.entry as any).Present.entry) as Obligation;
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
   }
-}
 
-const desirializeData = async (serializedData) => {
-  return decode(serializedData);
-};
+  const desirializeData = async (serializedData) => {
+    return decode(serializedData);
+  };
 
   $: client, loading, store;
 
@@ -81,25 +78,24 @@ const desirializeData = async (serializedData) => {
 
   onMount(async () => {
     try {
-      
-   
-    // We pass '' as url because it will dynamically be replaced in launcher environments
-    client = await AppAgentWebsocket.connect("", "mtcs");
-    store = new ProfilesStore(new ProfilesClient(client, "form_test"));
+      // We pass '' as url because it will dynamically be replaced in launcher environments
+      client = await AppAgentWebsocket.connect("", "mtcs");
+      store = new ProfilesStore(new ProfilesClient(client, "form_test"));
 
-    client.on("signal", async (signal) => {
-      if (signal.zome_name !== "form") return;
-      const payload = signal.payload as FormSignal;
-      if (payload.type !== "ObligationProposed") return;
-      console.log('Obligation Proposal Signal Received: ', signal)
+      client.on("signal", async (signal) => {
+        console.log("Signal Received: ", signal);
+        if (signal.zome_name !== "form") return;
+        const payload = signal.payload as FormSignal;
+        if (payload.type !== "ObligationProposed") return;
+        console.log("Obligation Proposal Signal Received: ", signal);
 
-      const actionHash = await desirializeData(payload.action);
-      const obligationRecord: Obligation = await fetchObligation(actionHash);
+        const actionHash = await desirializeData(payload.action);
+        const obligationRecord: Obligation = await fetchObligation(actionHash);
 
-      proposedObligations = [...proposedObligations, obligationRecord];
-    });
-  } catch (error) {
-      console.error(error)
+        proposedObligations = [...proposedObligations, obligationRecord];
+      });
+    } catch (error) {
+      console.error(error);
     }
     loading = false;
   });
@@ -123,8 +119,6 @@ const desirializeData = async (serializedData) => {
           id="content"
           style="display: flex; flex-direction: column; flex: 1;"
         >
-
-
           <AllObligations />
 
           <CreateObligation
@@ -135,7 +129,6 @@ const desirializeData = async (serializedData) => {
 
           <div>TEST: {proposedObligations[0].amount}</div>
           {/if} -->
-
         </div>
       </profile-prompt>
     </profiles-context>
@@ -156,3 +149,4 @@ const desirializeData = async (serializedData) => {
     }
   }
 </style>
+

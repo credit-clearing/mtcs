@@ -27,14 +27,17 @@ pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
         LinkTypes::AllObligations,
         (),
     )?;
-    // let mut res;
+
     let notify_res = notify(obligation.debtor, record.action_address().to_owned());
 
-    // match notify_res {
-    //     Ok(r) => res = "Success",
-    //     Err(r) => res = wasm_error!(r),
-    // }
-    // println!("RES: {}", res);
+    match notify_res {
+        Ok(r) => {
+            debug!("NOTIFY RES WORKED: {:?}", r);
+        }
+        Err(r) => {
+            debug!("NOTIFY RES FAILED: {:?}", r);
+        }
+    }
 
     Ok(record)
 }
