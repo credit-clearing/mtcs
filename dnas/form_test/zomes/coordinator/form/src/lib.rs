@@ -137,3 +137,31 @@ fn get_entry_for_action(action_hash: &ActionHash) -> ExternResult<Option<EntryTy
         )?,
     )
 }
+
+#[hdk_extern]
+pub fn notify(debtor: AgentPubKey, obligation: ActionHash) -> ExternResult<()> {
+  let input_string = String::from("input parameter");
+
+  let input = ExternIO::encode(obligation.to_string()).map_err(|err| wasm_error!(err))?; // Wrapping input 
+
+  let agents: Vec<AgentPubKey> = vec![debtor];
+
+  remote_signal(input, agents)?; // Doesn't wait 
+
+  Ok(())
+}
+
+
+/// Currently this requires the function `recv_remote_signal` be
+/// exposed by this zome with a signature like:
+
+/// This function will also need to be added to your init as a
+/// unrestricted cap grant so it can be called remotely.
+#[hdk_extern]
+pub fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
+    emit_signal(&signal)?;
+    Ok(())
+}
+
+// To receive signal in front-end
+// https://github.com/holochain/holochain-client-js
