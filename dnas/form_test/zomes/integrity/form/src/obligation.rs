@@ -7,6 +7,7 @@ pub struct Obligation {
     pub attachment: String,
     pub datetime: Timestamp,
     pub creator: AgentPubKey,
+    pub approved: bool
 }
 pub fn validate_create_obligation(
     _action: EntryCreationAction,
@@ -170,3 +171,4 @@ pub fn validate_delete_link_all_obligations(
         ),
     )
 }
+
