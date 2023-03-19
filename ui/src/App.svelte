@@ -1,13 +1,21 @@
 <script lang="ts">
   import { onMount, setContext } from "svelte";
-  import type { ActionHash, AppAgentClient } from "@holochain/client";
+  import type {
+     ActionHash,
+     AppAgentClient,
+  } from "@holochain/client";
   import { AppAgentWebsocket } from "@holochain/client";
   import "@material/mwc-circular-progress";
+  import { decode } from "@msgpack/msgpack";
 
   import { clientContext } from "./contexts";
 
   import AllObligations from "./form_test/form/AllObligations.svelte";
   import CreateObligation from "./form_test/form/CreateObligation.svelte";
+  import MyPubKey from "./components/MyPubKey.svelte";
+
+  import type { FormSignal, Obligation } from "./form_test/form/types";
+  import ObligationDetail from "./form_test/form/ObligationDetail.svelte";
 
   import {
     ProfilesStore,
@@ -22,6 +30,36 @@
   let client: AppAgentClient | undefined;
   let loading = true;
   let store = undefined;
+  let proposedObligations: Array<Obligation> | undefined;
+
+$: client, loading, proposedObligations;
+
+async function fetchObligation(obligationHash) {
+  // const obligation_hash = decode((record.entry as any).Present.entry) as ActionHash;
+
+  try {
+    const record = await client.callZome({
+      cap_secret: null,
+      role_name: "form_test",
+      zome_name: "form",
+      fn_name: "get_obligation",
+      payload: obligationHash,
+    });
+    // if (record) {
+    //   return record as HRecord
+    // }
+
+    if (record) {
+      return decode((record.entry as any).Present.entry) as Obligation;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const desirializeData = async (serializedData) => {
+  return decode(serializedData);
+};
 
   $: client, loading, store;
 
@@ -45,9 +83,20 @@
     // We pass '' as url because it will dynamically be replaced in launcher environments
     client = await AppAgentWebsocket.connect("", "mtcs");
     store = new ProfilesStore(new ProfilesClient(client, "form_test"));
+
+    client.on("signal", async (signal) => {
+      console.log('Signal Received: ', signal)
+      if (signal.zome_name !== "form") return;
+      const payload = signal.payload as FormSignal;
+      if (payload.type !== "ObligationProposed") return;
+
+      const actionHash = await desirializeData(payload.action);
+      const obligationRecord: Obligation = await fetchObligation(actionHash);
+
+      proposedObligations = [...proposedObligations, obligationRecord];
+    });
     loading = false;
   });
-
   setContext(clientContext, {
     getClient: () => client,
   });
@@ -68,7 +117,7 @@
           id="content"
           style="display: flex; flex-direction: column; flex: 1;"
         >
-          <AllObligations />
+          
 
           <CreateObligation
             debtor={client.myPubKey}
@@ -77,6 +126,10 @@
         </div>
       </profile-prompt>
     </profiles-context>
+    <div id="obligations"
+    style="display: flex; flex-direction: column; flex: 1; padding: 25px 25px; margin: auto">
+    <AllObligations />
+  </div>
   {/if}
 </main>
 

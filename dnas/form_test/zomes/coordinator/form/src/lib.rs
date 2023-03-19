@@ -30,7 +30,13 @@ pub enum Signal {
         action: SignedActionHashed,
         original_app_entry: EntryTypes,
     },
+    ObligationProposed {
+        serialised_data: SerializedBytes,
+    },
 }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ObligationHashSignal(String);
+
 #[hdk_extern(infallible)]
 pub fn post_commit(committed_actions: Vec<SignedActionHashed>) {
     for action in committed_actions {
@@ -133,10 +139,9 @@ fn get_entry_for_action(action_hash: &ActionHash) -> ExternResult<Option<EntryTy
     )?)
 }
 
-pub fn notify(debtor: AgentPubKey, obligation: ActionHash) -> ExternResult<()> {
-    let input_string = String::from("input parameter");
-
-    let input = ExternIO::encode(obligation.to_string()).map_err(|err| wasm_error!(err))?; // Wrapping input
+pub fn notify(debtor: AgentPubKey, obligation_action_hash: ActionHash) -> ExternResult<()> {
+    let input =
+        ExternIO::encode(obligation_action_hash.to_string()).map_err(|err| wasm_error!(err))?; // Wrapping input
 
     let agents: Vec<AgentPubKey> = vec![debtor];
 
@@ -150,11 +155,11 @@ pub fn notify(debtor: AgentPubKey, obligation: ActionHash) -> ExternResult<()> {
 
 /// This function will also need to be added to your init as a
 /// unrestricted cap grant so it can be called remotely.
+
 #[hdk_extern]
 pub fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
-    emit_signal(&signal)?;
+    emit_signal(Signal::ObligationProposed {
+        serialised_data: signal,
+    })?;
     Ok(())
 }
-
-// To receive signal in front-end
-// https://github.com/holochain/holochain-client-js

@@ -4,11 +4,11 @@ use hdi::prelude::*;
 pub struct Obligation {
     pub amount: f32,
     pub debtor: AgentPubKey,
-    pub attachment: String,
     pub datetime: Timestamp,
     pub creator: AgentPubKey,
-    pub approved: bool
+    pub approved: bool,
 }
+
 pub fn validate_create_obligation(
     _action: EntryCreationAction,
     _obligation: Obligation,
@@ -42,11 +42,9 @@ pub fn validate_create_link_debtor_to_obligations(
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_debtor_to_obligations(
@@ -56,11 +54,9 @@ pub fn validate_delete_link_debtor_to_obligations(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("DebtorToObligations links cannot be deleted"),
-        ),
-    )
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "DebtorToObligations links cannot be deleted",
+    )))
 }
 pub fn validate_create_link_creator_to_obligations(
     _action: CreateLink,
@@ -74,11 +70,9 @@ pub fn validate_create_link_creator_to_obligations(
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_creator_to_obligations(
@@ -88,11 +82,9 @@ pub fn validate_delete_link_creator_to_obligations(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("CreatorToObligations links cannot be deleted"),
-        ),
-    )
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "CreatorToObligations links cannot be deleted",
+    )))
 }
 pub fn validate_create_link_obligation_updates(
     _action: CreateLink,
@@ -106,22 +98,18 @@ pub fn validate_create_link_obligation_updates(
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
     let _obligation: crate::Obligation = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_link_obligation_updates(
@@ -131,11 +119,9 @@ pub fn validate_delete_link_obligation_updates(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("ObligationUpdates links cannot be deleted"),
-        ),
-    )
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "ObligationUpdates links cannot be deleted",
+    )))
 }
 pub fn validate_create_link_all_obligations(
     _action: CreateLink,
@@ -150,11 +136,9 @@ pub fn validate_create_link_all_obligations(
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Linked action must reference an entry"))
-            ),
-        )?;
+        .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
+            "Linked action must reference an entry"
+        ))))?;
     // TODO: add the appropriate validation rules
     Ok(ValidateCallbackResult::Valid)
 }
@@ -165,10 +149,7 @@ pub fn validate_delete_link_all_obligations(
     _target: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(
-        ValidateCallbackResult::Invalid(
-            String::from("AllObligations links cannot be deleted"),
-        ),
-    )
+    Ok(ValidateCallbackResult::Invalid(String::from(
+        "AllObligations links cannot be deleted",
+    )))
 }
-

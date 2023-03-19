@@ -9,43 +9,47 @@ import type {
   Update,
   Delete,
   CreateLink,
-  DeleteLink
-} from '@holochain/client';
+  DeleteLink,
+} from "@holochain/client";
 
-export type FormSignal = {
-  type: 'EntryCreated';
-  action: SignedActionHashed<Create>;
-  app_entry: EntryTypes;
-} | {
-  type: 'EntryUpdated';
-  action: SignedActionHashed<Update>;
-  app_entry: EntryTypes;
-  original_app_entry: EntryTypes;
-} | {
-  type: 'EntryDeleted';
-  action: SignedActionHashed<Delete>;
-  original_app_entry: EntryTypes;
-} | {
-  type: 'LinkCreated';
-  action: SignedActionHashed<CreateLink>;
-  link_type: string;
-} | {
-  type: 'LinkDeleted';
-  action: SignedActionHashed<DeleteLink>;
-  link_type: string;
-};
+export type FormSignal =
+  | {
+      type: "EntryCreated";
+      action: SignedActionHashed<Create>;
+      app_entry: EntryTypes;
+    }
+  | {
+      type: "EntryUpdated";
+      action: SignedActionHashed<Update>;
+      app_entry: EntryTypes;
+      original_app_entry: EntryTypes;
+    }
+  | {
+      type: "EntryDeleted";
+      action: SignedActionHashed<Delete>;
+      original_app_entry: EntryTypes;
+    }
+  | {
+      type: "LinkCreated";
+      action: SignedActionHashed<CreateLink>;
+      link_type: string;
+    }
+  | {
+      type: "LinkDeleted";
+      action: SignedActionHashed<DeleteLink>;
+      link_type: string;
+    }
+  | {
+      type: "ObligationProposed";
+      action: SignedActionHashed<Create>;
+    };
 
-export type EntryTypes =
-  | ({ type: 'Obligation'; } & Obligation);
-
-
+export type EntryTypes = { type: "Obligation" } & Obligation;
 
 export interface Obligation {
   amount: number;
 
   debtor: AgentPubKey;
-
-  attachment: string;
 
   datetime: number;
 
@@ -53,4 +57,3 @@ export interface Obligation {
 
   approved: boolean;
 }
-

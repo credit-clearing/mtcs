@@ -1,8 +1,6 @@
-use hdk::prelude::*;
-use form_integrity::*;
-
 use crate::notify;
-
+use form_integrity::*;
+use hdk::prelude::*;
 
 #[hdk_extern]
 pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
@@ -19,12 +17,9 @@ pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
         LinkTypes::CreatorToObligations,
         (),
     )?;
-    let record = get(obligation_hash.clone(), GetOptions::default())?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Could not find the newly created Obligation"))
-            ),
-        )?;
+    let record = get(obligation_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+        WasmErrorInner::Guest(String::from("Could not find the newly created Obligation"))
+    ))?;
     let path = Path::from("all_obligations");
     create_link(
         path.path_entry_hash()?,
@@ -33,14 +28,12 @@ pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {
         (),
     )?;
 
-    notify(obligation.debtor, record.action_address().to_owned());
+    notify(obligation.debtor, record.action_address().to_owned())?;
 
     Ok(record)
 }
 #[hdk_extern]
-pub fn get_obligation(
-    original_obligation_hash: ActionHash,
-) -> ExternResult<Option<Record>> {
+pub fn get_obligation(original_obligation_hash: ActionHash) -> ExternResult<Option<Record>> {
     let links = get_links(
         original_obligation_hash.clone(),
         LinkTypes::ObligationUpdates,
@@ -73,18 +66,14 @@ pub fn update_obligation(input: UpdateObligationInput) -> ExternResult<Record> {
         LinkTypes::ObligationUpdates,
         (),
     )?;
-    let record = get(updated_obligation_hash.clone(), GetOptions::default())?
-        .ok_or(
-            wasm_error!(
-                WasmErrorInner::Guest(String::from("Could not find the newly updated Obligation"))
-            ),
-        )?;
+    let record =
+        get(updated_obligation_hash.clone(), GetOptions::default())?.ok_or(wasm_error!(
+            WasmErrorInner::Guest(String::from("Could not find the newly updated Obligation"))
+        ))?;
     Ok(record)
 }
 #[hdk_extern]
-pub fn delete_obligation(
-    original_obligation_hash: ActionHash,
-) -> ExternResult<ActionHash> {
+pub fn delete_obligation(original_obligation_hash: ActionHash) -> ExternResult<ActionHash> {
     delete_entry(original_obligation_hash)
 }
 #[hdk_extern]
@@ -92,10 +81,7 @@ pub fn get_obligations_for_debtor(debtor: AgentPubKey) -> ExternResult<Vec<Recor
     let links = get_links(debtor, LinkTypes::DebtorToObligations, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
-        .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
-            GetOptions::default(),
-        ))
+        .map(|link| GetInput::new(ActionHash::from(link.target).into(), GetOptions::default()))
         .collect();
     let records: Vec<Record> = HDK
         .with(|hdk| hdk.borrow().get(get_input))?
@@ -109,10 +95,7 @@ pub fn get_obligations_for_creator(creator: AgentPubKey) -> ExternResult<Vec<Rec
     let links = get_links(creator, LinkTypes::CreatorToObligations, None)?;
     let get_input: Vec<GetInput> = links
         .into_iter()
-        .map(|link| GetInput::new(
-            ActionHash::from(link.target).into(),
-            GetOptions::default(),
-        ))
+        .map(|link| GetInput::new(ActionHash::from(link.target).into(), GetOptions::default()))
         .collect();
     let records: Vec<Record> = HDK
         .with(|hdk| hdk.borrow().get(get_input))?
