@@ -20,6 +20,7 @@
   import "@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js";
 
   import {
+    ProfileDetail,
     ProfilesClient,
     ProfilesContext,
     ProfilesStore,
@@ -31,7 +32,6 @@
   const dispatch = createEventDispatcher();
 
   export let debtor!: AgentPubKey;
-
   export let creator!: AgentPubKey;
 
   let amount: number = 0.0;
@@ -51,14 +51,13 @@
     customElements.define("search-agent", SearchAgent);
   }
 
+  if (!customElements.get("profile-detail")) {
+    customElements.define("profile-detail", ProfileDetail);
+  }
+
   let store = undefined;
 
   onMount(() => {
-    if (debtor === undefined) {
-      throw new Error(
-        `The debtor input is required for the CreateObligation element`
-      );
-    }
     if (creator === undefined) {
       throw new Error(
         `The creator input is required for the CreateObligation element`
@@ -75,6 +74,7 @@
       attachment: attachment!,
       datetime: datetime!,
       creator: creator!,
+      approved: false,
     };
 
     try {
@@ -105,19 +105,7 @@
       label="Amount"
       value={amount}
       on:input={(e) => {
-        amount = e.target.value;
-      }}
-      required
-    />
-  </div>
-
-  <div style="margin-bottom: 16px">
-    <mwc-textfield
-      outlined
-      label="Debtor"
-      value={encodeHashToBase64(debtor)}
-      on:input={(e) => {
-        debtor = e.target.value;
+        amount = parseFloat(e.target.value);
       }}
       required
     />
@@ -125,13 +113,19 @@
 
   <div style="margin-bottom: 16px">
     <profiles-context {store}>
-      <div style="height: 200px">
+      <div>
         <search-agent
           field-label="Debtor"
           on:agent-selected={(data) => {
             debtor = data.detail.agentPubKey;
           }}
         />
+
+        <span>
+          Selected agent public key: {encodeHashToBase64(debtor)}
+        </span>
+        <br />
+        <profile-detail />
       </div>
     </profiles-context>
   </div>

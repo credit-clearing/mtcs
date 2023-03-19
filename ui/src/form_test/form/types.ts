@@ -1,9 +1,9 @@
-import type { 
-  Record, 
+import type {
+  Record,
   ActionHash,
   DnaHash,
   SignedActionHashed,
-  EntryHash, 
+  EntryHash,
   AgentPubKey,
   Create,
   Update,
@@ -36,11 +36,11 @@ export type FormSignal = {
 };
 
 export type EntryTypes =
- | ({  type: 'Obligation'; } & Obligation);
+  | ({ type: 'Obligation'; } & Obligation);
 
 
 
-export interface Obligation { 
+export interface Obligation {
   amount: number;
 
   debtor: AgentPubKey;
@@ -50,5 +50,7 @@ export interface Obligation {
   datetime: number;
 
   creator: AgentPubKey;
+
+  approved: boolean;
 }
 
