@@ -18,12 +18,20 @@
 
   import "@material/mwc-slider";
   import "@vaadin/date-time-picker/theme/material/vaadin-date-time-picker.js";
+
+  import {
+    ProfileDetail,
+    ProfilesClient,
+    ProfilesContext,
+    ProfilesStore,
+    SearchAgent,
+  } from "@holochain-open-dev/profiles";
+
   let client: AppAgentClient = (getContext(clientContext) as any).getClient();
 
   const dispatch = createEventDispatcher();
 
   export let debtor!: AgentPubKey;
-
   export let creator!: AgentPubKey;
 
   let amount: number = 0.0;
@@ -34,17 +42,28 @@
   $: amount, debtor, datetime, creator;
   $: isObligationValid = true && true  && true;
 
+  if (!customElements.get("profiles-context")) {
+    customElements.define("profiles-context", ProfilesContext);
+  }
+
+  if (!customElements.get("search-agent")) {
+    customElements.define("search-agent", SearchAgent);
+  }
+
+  if (!customElements.get("profile-detail")) {
+    customElements.define("profile-detail", ProfileDetail);
+  }
+
+  let store = undefined;
+
   onMount(() => {
-    if (debtor === undefined) {
-      throw new Error(
-        `The debtor input is required for the CreateObligation element`
-      );
-    }
     if (creator === undefined) {
       throw new Error(
         `The creator input is required for the CreateObligation element`
       );
     }
+
+    store = new ProfilesStore(new ProfilesClient(client, "form_test"));
   });
 
   async function createObligation() {
@@ -53,6 +72,7 @@
       debtor: debtor!,
       datetime: datetime!,
       creator: creator!,
+      approved: false,
     };
 
     try {
@@ -83,22 +103,29 @@
       label="Amount"
       value={amount}
       on:input={(e) => {
-        amount = e.target.value;
+        amount = parseFloat(e.target.value);
       }}
       required
     />
   </div>
 
   <div style="margin-bottom: 16px">
-    <mwc-textfield
-      outlined
-      label="Debtor"
-      value={encodeHashToBase64(debtor)}
-      on:input={(e) => {
-        debtor = e.target.value;
-      }}
-      required
-    />
+    <profiles-context {store}>
+      <div>
+        <search-agent
+          field-label="Debtor"
+          on:agent-selected={(data) => {
+            debtor = data.detail.agentPubKey;
+          }}
+        />
+
+        <span>
+          Selected agent public key: {encodeHashToBase64(debtor)}
+        </span>
+        <br />
+        <profile-detail />
+      </div>
+    </profiles-context>
   </div>
 
 

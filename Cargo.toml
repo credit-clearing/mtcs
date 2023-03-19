@@ -17,3 +17,9 @@ path = "dnas/form_test/zomes/coordinator/form"
 
 [workspace.dependencies.form_integrity]
 path = "dnas/form_test/zomes/integrity/form"
+
+[workspace.dependencies.profiles]
+path = "dnas/form_test/zomes/coordinator/profiles"
+
+[workspace.dependencies.profiles_integrity]
+path = "dnas/form_test/zomes/integrity/profiles"

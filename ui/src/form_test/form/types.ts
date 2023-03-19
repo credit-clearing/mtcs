@@ -54,4 +54,6 @@ export interface Obligation {
   datetime: number;
 
   creator: AgentPubKey;
+
+  approved: boolean;
 }

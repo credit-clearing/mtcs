@@ -10,6 +10,10 @@ integrity:
       hash: ~
       bundled: "../../../target/wasm32-unknown-unknown/release/form_integrity.wasm"
       dependencies: ~
+    - name: profiles_integrity
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm"
+      dependencies: ~
 coordinator:
   zomes:
     - name: form
@@ -17,3 +21,8 @@ coordinator:
       bundled: "../../../target/wasm32-unknown-unknown/release/form.wasm"
       dependencies:
         - name: form_integrity
+    - name: profiles
+      hash: ~
+      bundled: "../../../target/wasm32-unknown-unknown/release/profiles.wasm"
+      dependencies:
+        - name: profiles_integrity
