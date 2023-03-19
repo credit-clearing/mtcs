@@ -114,3 +114,14 @@ pub fn get_obligations_for_creator(creator: AgentPubKey) -> ExternResult<Vec<Rec
         .collect();
     Ok(records)
 }
+#[hdk_extern]
+pub fn find_next_obligation() -> ExternResult<String> {
+    let my_pub_key = agent_info()?.agent_initial_pubkey;
+    let links = get_links(my_pub_key, LinkTypes::PseudoObligations, None)?;
+    // for each link
+    // retrieve all direct pseudo oligations
+    // for each new pseudo obligation
+    // create a new pseudooligationrecord with a link to my agent
+
+    Ok("Found {} new pseudo obligations", 2)
+}
