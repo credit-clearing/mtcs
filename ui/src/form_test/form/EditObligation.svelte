@@ -30,13 +30,12 @@
   ) as Obligation;
 
   let amount: number | undefined = currentObligation.amount;
-  let attachment: string | undefined = currentObligation.attachment;
   let datetime: number | undefined = currentObligation.datetime;
 
   let errorSnackbar: Snackbar;
 
-  $: amount, attachment, datetime;
-  $: isObligationValid = true && true && attachment !== "" && true;
+  $: amount, datetime;
+  $: isObligationValid = true && true && true;
 
   onMount(() => {
     if (currentRecord === undefined) {
@@ -54,7 +53,6 @@
   async function updateObligation() {
     const obligation: Obligation = {
       amount: amount!,
-      attachment: attachment!,
       datetime: datetime!,
       debtor: currentObligation.debtor,
       creator: currentObligation.creator,
@@ -98,18 +96,6 @@
         }}
       />
     </div>
-  </div>
-
-  <div style="margin-bottom: 16px">
-    <mwc-textfield
-      outlined
-      label="Attachment"
-      value={attachment}
-      on:input={(e) => {
-        attachment = e.target.value;
-      }}
-      required
-    />
   </div>
 
   <div style="margin-bottom: 16px">

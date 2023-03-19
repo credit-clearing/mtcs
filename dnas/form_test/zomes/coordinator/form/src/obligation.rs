@@ -1,7 +1,6 @@
+use crate::notify;
 use form_integrity::*;
 use hdk::prelude::*;
-
-use crate::notify;
 
 #[hdk_extern]
 pub fn create_obligation(obligation: Obligation) -> ExternResult<Record> {

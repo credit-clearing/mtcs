@@ -110,10 +110,6 @@ async function deleteObligation() {
     <span style="white-space: pre-line">{ obligation.amount }</span>
   </div>
 
-  <div style="display: flex; flex-direction: row; margin-bottom: 16px">
-    <span style="margin-right: 4px"><strong>Attachment:</strong></span>
-    <span style="white-space: pre-line">{ obligation.attachment }</span>
-  </div>
 
   <div style="display: flex; flex-direction: row; margin-bottom: 16px">
     <span style="margin-right: 4px"><strong>Datetime:</strong></span>

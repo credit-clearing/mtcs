@@ -27,13 +27,12 @@
   export let creator!: AgentPubKey;
 
   let amount: number = 0.0;
-  let attachment: string = "";
   let datetime: number = Date.now();
 
   let errorSnackbar: Snackbar;
 
-  $: amount, debtor, attachment, datetime, creator;
-  $: isObligationValid = true && true && attachment !== "" && true;
+  $: amount, debtor, datetime, creator;
+  $: isObligationValid = true && true  && true;
 
   onMount(() => {
     if (debtor === undefined) {
@@ -52,7 +51,6 @@
     const obligationEntry: Obligation = {
       amount: amount!,
       debtor: debtor!,
-      attachment: attachment!,
       datetime: datetime!,
       creator: creator!,
     };
@@ -103,17 +101,6 @@
     />
   </div>
 
-  <div style="margin-bottom: 16px">
-    <mwc-textfield
-      outlined
-      label="Attachment"
-      value={attachment}
-      on:input={(e) => {
-        attachment = e.target.value;
-      }}
-      required
-    />
-  </div>
 
   <div style="margin-bottom: 16px">
     <vaadin-date-time-picker

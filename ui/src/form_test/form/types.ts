@@ -51,8 +51,6 @@ export interface Obligation {
 
   debtor: AgentPubKey;
 
-  attachment: string;
-
   datetime: number;
 
   creator: AgentPubKey;
